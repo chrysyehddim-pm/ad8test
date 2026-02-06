@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>幸福柑仔店 - 最終修正版 (V19.2)</title>
+    <title>幸福柑仔店</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -139,19 +139,19 @@
             margin-right: 15px; z-index: 10;
         }
 
-        /* 輸入介面 - 修正版 */
+        /* 輸入介面 */
         .input-group { 
-            display: flex; gap: 4px; /* 縮小間距 */
+            display: flex; gap: 4px; 
             margin-bottom: 25px; width: 100%; justify-content: center; 
         }
         .custom-select {
-            padding: 10px 0; /* 縮小 padding 防止跑版 */
-            font-size: 18px; /* 稍微縮小字體 */
+            padding: 10px 0; 
+            font-size: 18px; 
             border-radius: 10px; border: 3px solid #f6ad55;
             background: #fff; color: #2d3748; font-weight: bold; text-align: center; 
-            flex: 1; /* 平均分配 */
-            width: 0; /* Flex hack for min width */
-            min-width: 0; /* 允許縮小 */
+            flex: 1; 
+            width: 0; 
+            min-width: 0; 
         }
         .confirm-btn {
             background: #48bb78; color: white; padding: 18px 40px; border-radius: 50px;
@@ -223,11 +223,14 @@
         }
         #start-btn:disabled { background: #718096; cursor: wait; animation: none; box-shadow: none; opacity: 0.8; }
         .pulse { animation: pulse 2s infinite; }
+
+        /* Key Item */
         #key-item {
             position: absolute; top: 60%; left: 70%; width: 100px; display: none; 
             z-index: 15; filter: drop-shadow(0 0 10px gold); cursor: pointer;
             animation: floatKey 2s infinite ease-in-out;
         }
+        
         @keyframes floatKey { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
@@ -236,8 +239,8 @@
 <body>
 
     <div id="mobile-container">
-        <!-- 音樂 -->
-        <audio id="bgm" loop preload="auto">
+        <!-- 音樂：修正 ID 並替換為正確連結 -->
+        <audio id="bgMusic" loop preload="auto">
             <source src="https://tunes.stocktune.com/public/8/7/e/87e007c3-7502-426c-8e14-f2a014c9c66f/whispers-of-forgotten-memories-stocktune.mp3" type="audio/mpeg">
         </audio>
 
@@ -313,7 +316,7 @@
         }
         window.addEventListener('resize', resizeApp);
         
-        // ================= 素材 =================
+        // ================= 素材 (修正連結) =================
         const ASSETS = {
             bg_morning: "https://i.ibb.co/kVFN53b9/store-day.jpg",
             bg_noon: "https://i.ibb.co/kVFN53b9/store-day.jpg",
@@ -325,48 +328,37 @@
             char_customer: "https://i.ibb.co/sJJzGsbZ/mrschen.png", 
             char_tv: "https://i.ibb.co/GfTGhprQ/tv.png",
             char_keys: "https://i.ibb.co/6hhTndN/key.png",
-            char_phone: "https://via.placeholder.com/300x300/transparent/000?text=Red+Phone",
-            char_clock: "https://via.placeholder.com/300x300/transparent/000?text=Wall+Clock"
+            // 使用有效連結替換 placeholder 以避免 404 錯誤
+            char_phone: "https://i.ibb.co/6hhTndN/key.png", // 暫時使用 key，實際應替換為電話圖
+            char_clock: "https://i.ibb.co/kVFN53b9/store-day.jpg" // 暫時使用背景圖避免紅字
         };
 
-        // ================= 聲音設定 (Voice Tweaks) =================
         const VOICE_PROFILES = {
             "店長": { pitch: 1.0, rate: 1.0 },
             "旁白": { pitch: 1.0, rate: 1.1 },
-            "肉販小劉": { pitch: 1.5, rate: 1.4 }, // 詐騙，尖銳急促
-            "米店阿強": { pitch: 0.7, rate: 1.2 }, // 男聲，低沈有力
-            "老王": { pitch: 0.6, rate: 0.8 }, // 老人，非常低沈慢速
-            "陳太太": { pitch: 1.4, rate: 1.1 }, // 女聲，高音
-            "電話": { pitch: 1.0, rate: 1.0 }
+            "肉販小劉": { pitch: 1.5, rate: 1.4 }, 
+            "米店阿強": { pitch: 0.7, rate: 1.2 },
+            "老王": { pitch: 0.6, rate: 0.8 }, 
+            "陳太太": { pitch: 1.4, rate: 1.1 },
+            "電話": { pitch: 1.1, rate: 1.1 }
         };
 
-        // ================= 劇本 (Renamed & Updated) =================
         const SCRIPT = [
             { type: "scene", bg: "bg_morning", time: "08:00" },
             { type: "talk", speaker: "店長", text: "早安！又是充滿活力的一天。", char: null },
-            
-            // Task 1
             { type: "talk", speaker: "店長", text: "首先要把日曆撕到今天... 咦？今天是幾號？", char: "char_clock" },
             { type: "date_input", text: "請選擇今日的正確日期：", correct: { money: 100, s: 0 }, wrong: { money: 0, s: 1 }, char: "char_clock" },
-            
-            // Task 2
             { type: "talk", speaker: "店長", text: "乖乖進貨了，但堆得亂七八糟。以前我最喜歡擺整齊了...", char: null },
             { type: "choice", text: "您現在的想法是？", choices: [{ t: "再累也要好好整理一下，生意才會好", s: 0, money: 200 }, { t: "好累喔，偷懶一下，生意不會差多少", s: 1, money: 0 }], char: null },
-
-            // Task 3
             { type: "talk", speaker: "旁白", text: "(鈴鈴鈴—— 紅色電話響了)", char: "char_phone" },
             { type: "talk", speaker: "肉販小劉", text: "『老闆好，我是肉販小劉，我們有進口高級澳洲牛肉超便宜！』", char: "char_phone" },
             { type: "talk", speaker: "肉販小劉", text: "『外面1斤要一千元，我這邊只要賣一百元，您再賣一斤五百元給客人都還賺錢！』", char: "char_phone" },
             { type: "talk", speaker: "肉販小劉", text: "『要不要先匯錢給我買個100斤，我再馬上寄給您？』", char: "char_phone" },
             { type: "choice", text: "您的反應是？", choices: [{ t: "好像很划算！馬上匯款。", s: 1, money: -500, reaction: {text: "店長: 好，匯過去了！期待牛肉... 不過心裡怎麼怪怪的？", speaker: "店長"} }, { t: "聽起來是詐騙，直接掛斷。", s: 0, money: 500 }], char: "char_phone" },
             { type: "talk", speaker: "店長", text: "呼... 真的要小心。", char: null },
-
-            // Task 3.5 (伏筆 - 阿強)
             { type: "talk", speaker: "旁白", text: "(鈴鈴鈴—— 電話又響了)", char: "char_phone" },
             { type: "talk", speaker: "米店阿強", text: "『喂？老闆喔，我是米店阿強啦！下午 4 點我會過去送貨，先跟你講一聲！』", char: "char_phone" },
             { type: "talk", speaker: "店長", text: "好，下午 4 點，我記住了。", char: null },
-
-            // Task 4
             { type: "scene", bg: "bg_morning", time: "10:00" },
             { type: "talk", speaker: "旁白", text: "(老王搖著扇子走了進來)", char: "char_oldman" }, 
             { type: "talk", speaker: "老王", text: "店長早啊！昨天天氣好，我去公園打了一套太極拳喔！", char: "char_oldman" },
@@ -375,31 +367,23 @@
             { type: "choice", text: "您想接著問老王什麼？", choices: [{ t: "昨天你去哪裡運動啊？", s: 1, money: 0 }, { t: "那公園有什麼新變化嗎？", s: 0, money: 100 }], char: "char_oldman" }, 
             { type: "talk", speaker: "老王", text: "哈哈，就那樣啦。那我先走了，掰掰！", char: "char_oldman" },
             { type: "talk", speaker: "旁白", text: "(老王揮揮手離開了)", char: null }, 
-
-            // Task 5
             { type: "scene", bg: "bg_noon", time: "12:00" },
             { type: "talk", speaker: "店長", text: "中午休息看一下新聞好了... 哎呀！", char: "char_tv", object: true },
             { type: "talk", speaker: "旁白", text: "(電視畫面變成了雪花雜訊)", char: "char_tv", object: true },
             { type: "choice", text: "通常您會怎麼做？", choices: [{ t: "檢查訊號線接頭", s: 0, money: 150 }, { t: "用力拍打電視", s: 1, money: 0, reaction: {text: "店長: 哎唷！手好痛... 這種老電視拍了也沒用，應該是要檢查訊號線才對。", speaker: "店長"} }], char: "char_tv", object: true }, 
             { type: "talk", speaker: "店長", text: "修好了！果然是線鬆了。", char: null }, 
-
-            // Task 6
             { type: "talk", speaker: "陳太太", text: "老闆結帳！我要買這些醬油和糖。", char: "char_customer" },
             { type: "talk", speaker: "店長", text: "好，一共是 345 元。", char: "char_customer" },
             { type: "talk", speaker: "旁白", text: "(客人遞給您一張 1000 元大鈔)", char: "char_customer" }, 
             { type: "number_input", text: "請輸入找零金額：", answer: 655, correct: { s: 0, money: 345 }, wrong: { s: 1, money: 0, reaction: {text: "陳太太: 哎呀我趕著回家煮飯，沒細看啦！謝啦老闆！", speaker: "陳太太"} }, char: "char_customer" },
             { type: "talk", speaker: "陳太太", text: "算得沒錯，謝謝老闆！", char: "char_customer" }, 
             { type: "talk", speaker: "旁白", text: "(陳太太開心地提著醬油回家煮飯了)", char: null }, 
-
-            // Task 7 (米店阿強)
             { type: "scene", bg: "bg_evening", time: "16:00" },
             { type: "talk", speaker: "米店阿強", text: "老闆！我來送米了！", char: "char_delivery" },
             { type: "talk", speaker: "米店阿強", text: "抱歉有點遲到，請問我們早上電話裡是約幾點？", char: "char_delivery" },
             { type: "time_picker", text: "早上約定的時間是？", answer: [16, 4], correct: { s: 0, money: 100, reaction: {text: "米店阿強: 沒錯！老闆記性真好，剛好 4 點整。", speaker: "米店阿強"} }, wrong: { s: 1, money: 0, reaction: {text: "米店阿強: 老闆... 我們是約下午 4 點捏，現在都到了，你記錯了吧？", speaker: "米店阿強"} }, char: "char_delivery" }, 
             { type: "talk", speaker: "米店阿強", text: "好啦沒關係，那我趕快卸貨。", char: "char_delivery" }, 
             { type: "talk", speaker: "旁白", text: "(米店阿強卸完貨離開了)", char: null }, 
-
-            // Task 8
             { type: "scene", bg: "bg_night", time: "18:00" },
             { type: "talk", speaker: "店長", text: "天黑了，該拉鐵門休息了。", char: null },
             { type: "scene", bg: "bg_desktop", time: "18:00" },
@@ -433,10 +417,12 @@
             hudMoney: document.getElementById('game-money'),
             key: document.getElementById('key-item'),
             startBtn: document.getElementById('start-btn'),
-            musicToggle: document.getElementById('music-toggle')
+            musicToggle: document.getElementById('music-toggle'),
+            // 抓取修正後的 ID
+            bgm: document.getElementById('bgMusic')
         };
 
-        const bgm = document.getElementById('bgm');
+        const bgm = dom.bgm;
         
         function toggleMusic() {
             isMusicOn = !isMusicOn;
@@ -453,13 +439,16 @@
             }
         }
 
+        // 音量控制：最大音量設為 0.8
         bgm.addEventListener('timeupdate', () => {
             if (!isMusicOn) return;
             const t = bgm.currentTime; const d = bgm.duration;
             if (!d) return;
-            if (t < 5) bgm.volume = t / 5; 
-            else if (t > d - 5) bgm.volume = Math.max(0, (d - t) / 5);
-            else bgm.volume = 1.0;
+            // 5秒淡入，目標最大音量 0.8
+            if (t < 5) bgm.volume = (t / 5) * 0.8; 
+            // 結束前 5 秒淡出
+            else if (t > d - 5) bgm.volume = Math.max(0, (d - t) / 5) * 0.8;
+            else bgm.volume = 0.8;
         });
 
         function speak(text, role) {
@@ -516,9 +505,12 @@
             document.getElementById('intro-overlay').style.display = 'none';
             dom.key.src = ASSETS.char_keys; 
             render();
+            // 強制播放音樂
             if(isMusicOn) {
                 bgm.volume = 0;
-                bgm.play().catch(e => console.log("Audio autoplay blocked"));
+                bgm.play().catch(e => {
+                    console.log("自動播放被攔截，將在使用者下一次點擊時嘗試");
+                });
             }
         }
 
