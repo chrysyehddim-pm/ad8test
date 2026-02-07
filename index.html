@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -761,4 +762,587 @@
         }
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>幸福柑仔店</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        /* 全局鎖定捲動 */
+        html, body { 
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            margin: 0; padding: 0; 
+            background-color: #2d3748; 
+            font-family: 'Noto Sans TC', sans-serif; 
+            overflow: hidden; 
+            overscroll-behavior: none; 
+        }
+
+        #mobile-container {
+            width: 100%; 
+            height: 100%; 
+            max-width: 480px;
+            margin: 0 auto; 
+            background: #000; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        /* 背景層 */
+        #bg-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            transition: opacity 0.5s ease;
+            background-color: #333; z-index: 1;
+        }
+
+        /* 雙緩衝角色層 */
+        #char-container {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 10;
+        }
+        .char-img {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            max-height: 85%; width: auto; max-width: 95%; 
+            opacity: 0; 
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4));
+            transition: opacity 0.3s ease-in-out; 
+        }
+        .char-visible { opacity: 1 !important; }
+        
+        /* 特殊位置調整 */
+        .object-mode { bottom: 25% !important; max-height: 45% !important; }
+        .calendar-pos { bottom: 45% !important; max-height: 32% !important; }
+        .phone-pos { 
+            bottom: 30% !important; 
+            max-height: 45% !important; 
+            transform: translateX(-50%) scale(0.7) !important; 
+        }
+
+        /* HUD */
+        #top-hud {
+            position: absolute; top: 15px; left: 15px; right: 15px;
+            display: flex; justify-content: space-between;
+            pointer-events: none; z-index: 20;
+        }
+        .status-pill {
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            padding: 8px 16px; border-radius: 25px; font-size: 16px; font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2); color: white;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* 音樂開關 */
+        #music-toggle {
+            position: absolute; top: 15px; right: 15px; z-index: 50;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(0,0,0,0.6); border: 2px solid #fff;
+            color: white; font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: auto;
+        }
+
+        /* 對話框 */
+        #dialog-area {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 38%;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 75%, rgba(0,0,0,0) 100%);
+            padding: 25px; padding-top: 50px; color: white; z-index: 30;
+            display: flex; flex-direction: column; cursor: pointer;
+        }
+        #speaker-box {
+            align-self: flex-start; background: #f6ad55; color: #2d3748;
+            padding: 6px 18px; border-radius: 8px; font-weight: bold; font-size: 20px; margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); transform: translateY(-5px);
+            display: flex; align-items: center; gap: 10px; white-space: nowrap;
+        }
+        #dialog-text { 
+            font-size: 22px; line-height: 1.6; flex: 1; overflow-y: auto; 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: pre-wrap; word-break: break-all;
+        }
+        .next-arrow { position: absolute; bottom: 25px; right: 25px; color: #f6ad55; animation: bounce 1s infinite; font-size: 28px; }
+
+        /* 互動層 */
+        #interaction-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            z-index: 100; display: none;
+            flex-direction: column; justify-content: center; align-items: center; padding: 25px;
+        }
+        #interaction-title {
+            color: white; font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 30px;
+            background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; width: 100%;
+            border: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: space-between; align-items: center;
+        }
+        #interaction-content { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+        /* 按鈕樣式 */
+        .choice-btn {
+            background: white !important; color: #2d3748 !important; width: 100%; 
+            min-height: 64px; padding: 12px 24px; margin-bottom: 16px;
+            border-radius: 50px; border: none; font-size: 20px; font-weight: bold;
+            box-shadow: 0 4px 0 #cbd5e0; transition: transform 0.1s;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            flex-shrink: 0;
+        }
+        .choice-btn:active { transform: translateY(4px); box-shadow: none; background: #e2e8f0 !important; }
+
+        /* 輸入介面 */
+        .input-group { display: flex; gap: 8px; margin-bottom: 25px; width: 100%; justify-content: center; }
+        .custom-select { padding: 12px 4px; font-size: 18px; border-radius: 10px; border: 3px solid #f6ad55; background: #fff; color: #2d3748; font-weight: bold; text-align: center; flex: 1; min-width: 0; }
+        .confirm-btn { background: #48bb78 !important; color: white !important; padding: 18px 40px; border-radius: 50px; font-size: 24px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 6px 0 #2f855a; width: 100%; margin-top: 15px; }
+
+        /* Numpad */
+        #numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-bottom: 15px; }
+        .num-btn { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); padding: 18px; font-size: 26px; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        .num-btn:active { background: rgba(255,255,255,0.4); }
+        .del-btn { color: #feb2b2; }
+        #numpad-display { width: 100%; background: #fff; color: #2d3748; font-size: 40px; font-weight: bold; text-align: center; padding: 12px; border-radius: 12px; margin-bottom: 20px; border: 4px solid #f6ad55; letter-spacing: 3px; height: 85px; display: flex; align-items: center; justify-content: center; }
+
+        /* Time Picker */
+        .time-picker-container { display: flex; flex-direction: column; align-items: center; width: 100%; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .ampm-toggle { display: flex; background: #e2e8f0; border-radius: 50px; padding: 5px; margin-bottom: 20px; width: 100%; }
+        .ampm-btn { flex: 1; padding: 12px; border-radius: 40px; border: none; font-size: 20px; font-weight: bold; cursor: pointer; background: transparent; color: #718096; }
+        .ampm-btn.active { background: #3b82f6; color: white; }
+        .hour-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
+        .hour-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px 0; font-size: 22px; font-weight: bold; color: #2d3748; cursor: pointer; }
+        .hour-btn.selected { border-color: #f6ad55; background: #fffaf0; color: #ed8936; box-shadow: 0 0 0 2px #f6ad55; }
+
+        /* Report */
+        #report-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; color: white; }
+        .report-card { background: #fff; width: 100%; padding: 35px 25px; border-radius: 25px; box-shadow: 0 10px 50px rgba(0,0,0,0.8); text-align: center; color: #2d3748; }
+        .stamp { border: 5px solid #e53e3e; color: #e53e3e; border-radius: 15px; padding: 10px 25px; font-size: 32px; font-weight: bold; transform: rotate(-5deg); margin: 30px auto; display: inline-block; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+    </style>
+</head>
+<body>
+
+    <div id="mobile-container">
+        <audio id="bgMusic" loop preload="auto"><source src="assets/audio/bgm.mp3" type="audio/mpeg"></audio>
+
+        <div id="music-toggle" onclick="toggleMusic()">
+            <i class="fas fa-volume-up"></i>
+        </div>
+
+        <div id="bg-layer"></div>
+        
+        <div id="char-container">
+            <img id="char-1" class="char-img" alt="C1">
+            <img id="char-2" class="char-img" alt="C2">
+        </div>
+        
+        <img id="key-item" style="position:absolute; top:60%; left:70%; width:100px; display:none; z-index:15; cursor:pointer;" src="assets/images/key.png" alt="Key">
+        
+        <div id="top-hud">
+            <div class="status-pill"><i class="fas fa-clock"></i> <span id="game-time">08:00</span></div>
+            <div class="status-pill" style="margin-right: 50px;"><i class="fas fa-coins"></i> 營收: <span id="game-money">0</span></div>
+        </div>
+        
+        <div id="dialog-area" onclick="advanceStory()">
+            <div id="speaker-box">
+                <span id="speaker-name">...</span>
+                <div class="read-btn" onclick="event.stopPropagation(); replayVoice()"><i class="fas fa-volume-up"></i></div>
+            </div>
+            <div id="dialog-text">...</div>
+            <div class="next-arrow"><i class="fas fa-caret-down"></i></div>
+        </div>
+        
+        <div id="interaction-overlay">
+            <div id="interaction-title">
+                <span id="title-text">請選擇</span>
+                <div class="title-speak-btn" style="background: rgba(255,255,255,0.2); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="speakTitle()"><i class="fas fa-volume-up"></i></div>
+            </div>
+            <div id="interaction-content"></div>
+        </div>
+
+        <div id="intro-overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; text-align:center; color:white;">
+            <div style="font-size: 40px; font-weight: bold; color: #f6ad55; margin-bottom: 25px;">幸福柑仔店</div>
+            <div style="font-size:20px; line-height:1.8; color:#e2e8f0; margin-bottom:40px;">歡迎光臨！<br>今天您將化身為<b>「一日店長」</b>，<br>請發揮您的智慧與經驗，<br>處理柑仔店的大小事吧！</div>
+            <button id="start-btn" onclick="startGame()" disabled style="background: linear-gradient(135deg, #f6ad55, #ed8936); color: #fff; border: none; padding: 18px 70px; border-radius: 50px; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.3s; opacity: 0.7;">遊戲載入中...</button>
+        </div>
+        
+        <div id="report-overlay" style="display:none;">
+            <div class="report-card">
+                <h2 style="margin:0;">📅 本日營運日報</h2>
+                <div id="final-stamp" class="stamp">金牌店長</div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #ccc; padding:15px 0;">
+                    <span>營運積分</span><span id="report-money" style="font-weight:bold; color:#38a169; font-size:22px;">$0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #ccc; padding:15px 0;">
+                    <span>專注力評級</span><span id="report-risk" style="font-weight:bold; font-size:22px;">S 級</span>
+                </div>
+                <p id="report-advice" style="font-size:18px; margin-top:25px; text-align:left; background:#f7fafc; padding:20px; border-radius:15px; line-height:1.6;">...</p>
+            </div>
+            <button onclick="location.reload()" style="background:#4fd1c5; color:white; border:none; padding:18px 50px; border-radius:50px; font-size:22px; font-weight:bold; margin-top:30px; cursor:pointer;">明日繼續營業</button>
+        </div>
+    </div>
+
+    <script>
+        const ASSETS = {
+            bg_morning: "assets/images/store-day.jpg",
+            bg_noon: "assets/images/store-day.jpg",
+            bg_evening: "assets/images/store-dusk.jpg",
+            bg_night: "assets/images/store-night.jpg",
+            bg_desktop: "assets/images/desktop.jpg",
+            char_oldman: "assets/images/wang.png",
+            char_delivery: "assets/images/deliveryboy.png",
+            char_customer: "assets/images/mrschen.png", 
+            char_tv: "assets/images/tv.png",
+            char_keys: "assets/images/key.png",
+            char_phone: "assets/images/phone.png", 
+            char_clock: "assets/images/calendar.png" 
+        };
+
+        const VOICE_PROFILES = {
+            "店長": { pitch: 1.0, rate: 1.0 },
+            "旁白": { pitch: 1.0, rate: 1.1 },
+            "肉販小劉": { pitch: 1.5, rate: 1.4 }, 
+            "米店阿強": { pitch: 0.7, rate: 1.2 },
+            "老王": { pitch: 0.6, rate: 0.8 }, 
+            "陳太太": { pitch: 1.4, rate: 1.1 }
+        };
+
+        // ================= 完整劇本 (補全轉場與對話) =================
+        const SCRIPT = [
+            { type: "scene", bg: "bg_morning", time: "08:00" },
+            { type: "talk", speaker: "店長", text: "早安！又是充滿活力的一天。" },
+            { type: "talk", speaker: "店長", text: "首先要把日曆撕到今天... 咦？今天是幾號？", char: "char_clock" },
+            { type: "date_input", text: "請選擇今日的正確日期：", char: "char_clock",
+              correct: { money: 100, s: 0, reaction: {text: "日曆換好了，準備開始打拼！", speaker: "店長"} },
+              wrong: { money: 0, s: 1, reaction: {text: "日期好像不太對，算了先不管它，開始打拼！", speaker: "店長"} } },
+            
+            { type: "talk", speaker: "旁白", text: "(門口送來一大箱乖乖進貨了，堆得亂七八糟。)" },
+            { type: "talk", speaker: "店長", text: "乖乖進貨了，但堆得亂七八糟。以前我最喜歡擺整齊了...", char: null },
+            { type: "choice", text: "您現在的想法是？", choices: [
+                { t: "再累也要好好整理一下，生意才會好", s: 0, money: 200, reaction: {text: "好，整理完了，看著整齊心裡就舒服。", speaker: "店長"} },
+                { t: "好累喔，偷懶一下，生意不會差多少", s: 1, money: 0, reaction: {text: "唉，真的太累了，先就這樣隨便放吧。", speaker: "店長"} }
+            ], char: null },
+
+            // 第一通電話轉場
+            { type: "talk", speaker: "旁白", text: "(鈴鈴鈴—— 櫃台的紅色電話響了)", char: "char_phone" },
+            { type: "talk", speaker: "肉販小劉", text: "『老闆好，我是肉販小劉，我們有進口高級澳洲牛肉超便宜！』", char: "char_phone" },
+            { type: "talk", speaker: "肉販小劉", text: "『外面1斤要一千元，我這邊只要賣一百元，要不要先匯錢給我？』", char: "char_phone" },
+            { type: "choice", text: "您的反應是？", choices: [
+                { t: "好像很划算！馬上匯款。", s: 1, money: -500, reaction: {text: "好，匯過去了！期待牛肉... 不過心裡怎麼怪怪的？", speaker: "店長"} },
+                { t: "聽起來是詐騙，直接掛斷。", s: 0, money: 500, reaction: {text: "呼... 真的要小心，這絕對是詐騙，不能上當。", speaker: "店長"} }
+            ], char: "char_phone" },
+            
+            // 第二通電話轉場
+            { type: "talk", speaker: "旁白", text: "(鈴鈴鈴—— 電話又響了)", char: "char_phone" },
+            { type: "talk", speaker: "米店阿強", text: "『喂？老闆喔，我是米店阿強啦！下午 4 點我會過去送貨，先跟你講一聲！』", char: "char_phone" },
+            { type: "talk", speaker: "店長", text: "好，下午 4 點，我記住了。", char: "char_phone" },
+
+            { type: "scene", bg: "bg_morning", time: "10:00" },
+            { type: "talk", speaker: "旁白", text: "(隔壁的老王搖著扇子走了進來)", char: "char_oldman" }, 
+            { type: "talk", speaker: "老王", text: "店長早啊！昨天天氣好，我去公園打了一套太極拳喔！", char: "char_oldman" },
+            { type: "talk", speaker: "老王", text: "嘿啊，還遇到陳媽媽，聊了很多。", char: "char_oldman" },
+            { type: "choice", text: "您想接著問老王什麼？", choices: [
+                { t: "那公園有什麼新變化嗎？", s: 0, money: 100, reaction: {text: "哈哈，就那樣啦。那我先走了，掰掰！", speaker: "老王"} },
+                { t: "昨天你去哪裡運動啊？", s: 1, money: 0, reaction: {text: "就說去公園打太極拳啊，你忘了喔？那我走了，掰掰！", speaker: "老王"} }
+            ], char: "char_oldman" }, 
+            { type: "talk", speaker: "旁白", text: "(老王揮揮手離開了)", char: null }, 
+
+            { type: "scene", bg: "bg_noon", time: "12:00" },
+            { type: "talk", speaker: "旁白", text: "(正午時分，店裡沒什麼客人，店長坐下來想看個電視休息。)" },
+            { type: "talk", speaker: "店長", text: "中午休息看一下新聞好了... 哎呀！", char: "char_tv", object: true },
+            { type: "talk", speaker: "旁白", text: "(電視畫面變成了雪花雜訊)", char: "char_tv", object: true },
+            { type: "choice", text: "通常您會怎麼做？", choices: [
+                { t: "檢查訊號線接頭", s: 0, money: 150, reaction: {text: "修好了！果然是訊號線鬆了。", speaker: "店長"} },
+                { t: "用力拍打電視", s: 1, money: 0, reaction: {text: "哎唷！手好痛... 這種老電視拍了也沒用。", speaker: "店長"} }
+            ], char: "char_tv", object: true }, 
+
+            { type: "talk", speaker: "旁白", text: "(正午剛過，這時陳太太提著籃子進店了...)" },
+            { type: "talk", speaker: "陳太太", text: "老闆結帳！我要買這些醬油和糖。", char: "char_customer" },
+            { type: "talk", speaker: "店長", text: "好，一共是 345 元。", char: "char_customer" },
+            { type: "talk", speaker: "旁白", text: "(陳太太遞給您一張 1000 元大鈔，等您找錢。)", char: "char_customer" }, 
+            { type: "number_input", text: "請問要找多少錢？", answer: 655,
+              correct: { s: 0, money: 345, reaction: {text: "算得沒錯，謝謝老闆！", speaker: "陳太太"} },
+              wrong: { s: 1, money: 0, reaction: {text: "哎呀我趕著回家煮飯，沒細看啦！謝啦老闆！", speaker: "陳太太"} },
+              char: "char_customer" },
+            { type: "talk", speaker: "旁白", text: "(陳太太開心地提著醬油回家煮飯了)", char: null }, 
+
+            { type: "scene", bg: "bg_evening", time: "16:00" },
+            { type: "talk", speaker: "旁白", text: "(快到約定的時間，這時米店阿強載著幾大袋米到了...)" },
+            { type: "talk", speaker: "米店阿強", text: "老闆！我來送米了！請問我們早上約幾點？", char: "char_delivery" },
+            { type: "time_picker", text: "早上約定的時間是？", answer: [16],
+              correct: { s: 0, money: 100, reaction: {text: "沒錯！老闆記性真好，剛好 4 點整。", speaker: "米店阿強"} },
+              wrong: { s: 1, money: 0, reaction: {text: "老闆... 我們是約下午 4 點捏，現在都到了，你記錯了吧？", speaker: "米店阿強"} },
+              char: "char_delivery" }, 
+            { type: "talk", speaker: "旁白", text: "(米店阿強卸完貨離開了)", char: null }, 
+
+            { type: "scene", bg: "bg_night", time: "18:00" },
+            { type: "talk", speaker: "店長", text: "天黑了，該拉鐵門休息了。" },
+            { type: "scene", bg: "bg_desktop", time: "18:00" },
+            { type: "talk", speaker: "店長", text: "糟糕，手上的鑰匙串不知道放哪去了？" },
+            { type: "choice", text: "請選擇尋找區域：", choices: [
+                { t: "去櫃台桌面找找看", s: 0, money: 200, key: true },
+                { t: "去冰箱裡面找找看", s: 1, money: 0 }
+            ] },
+            { type: "key_search", text: "找到了！原來壓在文件下面。", char: null },
+            { type: "end" }
+        ];
+
+        // ================= 核心邏輯 =================
+        let index = 0, riskScore = 0, totalMoney = 0;
+        let activeCharIndex = 1;
+        let typeWriterTimer = null;
+        let isMusicOn = true;
+        let blockAdvance = false; // 鎖定機制，防止跳幕
+        let speechSynth = window.speechSynthesis;
+
+        const dom = {
+            bg: document.getElementById('bg-layer'),
+            char1: document.getElementById('char-1'),
+            char2: document.getElementById('char-2'),
+            overlay: document.getElementById('interaction-overlay'),
+            titleText: document.getElementById('title-text'),
+            content: document.getElementById('interaction-content'),
+            dialog: document.getElementById('dialog-area'),
+            speakerName: document.getElementById('speaker-name'),
+            text: document.getElementById('dialog-text'),
+            hudTime: document.getElementById('game-time'),
+            hudMoney: document.getElementById('game-money'),
+            key: document.getElementById('key-item'),
+            startBtn: document.getElementById('start-btn'),
+            bgm: document.getElementById('bgMusic')
+        };
+
+        function toggleMusic() {
+            isMusicOn = !isMusicOn;
+            const icon = document.querySelector('#music-toggle i');
+            if (isMusicOn) { icon.className = 'fas fa-volume-up'; dom.bgm.play().catch(e=>{}); } 
+            else { icon.className = 'fas fa-volume-mute'; dom.bgm.pause(); speechSynth.cancel(); }
+        }
+
+        dom.bgm.addEventListener('timeupdate', () => {
+            if (!isMusicOn) return;
+            const t = dom.bgm.currentTime; const d = dom.bgm.duration;
+            if (t < 5) dom.bgm.volume = (t / 5) * 0.8; 
+            else if (t > d - 5) dom.bgm.volume = Math.max(0, (d - t) / 5) * 0.8;
+            else dom.bgm.volume = 0.8;
+        });
+
+        function speak(text, role) {
+            if (!isMusicOn) return; 
+            speechSynth.cancel(); 
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'zh-TW';
+            const profile = VOICE_PROFILES[role] || { pitch: 1.0, rate: 1.0 };
+            u.pitch = profile.pitch; u.rate = profile.rate;
+            speechSynth.speak(u);
+        }
+
+        function replayVoice() {
+            const scene = SCRIPT[index];
+            if(scene && scene.text) speak(scene.text, scene.speaker);
+        }
+
+        function speakTitle() {
+            const scene = SCRIPT[index];
+            if(scene && scene.text) speak(scene.text, "旁白");
+        }
+
+        window.onload = function() {
+            resizeApp(); 
+            let loadedCount = 0;
+            const assetKeys = Object.keys(ASSETS);
+            const checkProgress = () => {
+                loadedCount++;
+                const percent = Math.floor((loadedCount / assetKeys.length) * 100);
+                dom.startBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 遊戲載入中 (${percent}%)`;
+                if (loadedCount >= assetKeys.length) { dom.startBtn.innerHTML = "開始營業"; dom.startBtn.disabled = false; dom.startBtn.style.opacity = "1"; }
+            };
+            assetKeys.forEach(key => {
+                const img = new Image();
+                img.onload = checkProgress; img.onerror = checkProgress; img.src = ASSETS[key];
+            });
+            dom.bgm.load();
+        };
+
+        function startGame() { document.getElementById('intro-overlay').style.display = 'none'; render(); if(isMusicOn){ dom.bgm.volume = 0; dom.bgm.play().catch(e=>{}); } }
+
+        function render() {
+            const scene = SCRIPT[index];
+            if (!scene) return;
+
+            if (scene.type === "scene") {
+                dom.bg.style.backgroundImage = `url('${ASSETS[scene.bg]}')`;
+                dom.hudTime.innerText = scene.time;
+                dom.char1.classList.remove('char-visible'); dom.char2.classList.remove('char-visible');
+                index++; render(); return;
+            }
+
+            if (scene.type === "end") { showReport(); return; }
+
+            if (scene.type === "key_search") {
+                dom.overlay.style.display = 'none';
+                dom.speakerName.innerText = "系統提示";
+                typeWriter("請在畫面上尋找鑰匙...", dom.text);
+                dom.key.style.display = 'block';
+                dom.key.onclick = () => {
+                    dom.key.style.display = 'none';
+                    dom.speakerName.innerText = "店長";
+                    typeWriter(scene.text, dom.text, () => {
+                        speak(scene.text, "店長");
+                        setTimeout(() => { index++; render(); }, 2000);
+                    });
+                };
+                return;
+            }
+
+            updateCharacter(scene);
+
+            if (scene.type === 'choice') showChoice(scene);
+            else if (scene.type === 'date_input') showDateInput(scene);
+            else if (scene.type === 'number_input') showNumberInput(scene);
+            else if (scene.type === 'time_picker') showTimePicker(scene); 
+            else showTalk(scene);
+        }
+
+        function updateCharacter(scene) {
+            const activeEl = activeCharIndex === 1 ? dom.char1 : dom.char2;
+            const nextEl = activeCharIndex === 1 ? dom.char2 : dom.char1;
+            if (scene.char && ASSETS[scene.char]) {
+                const targetSrc = ASSETS[scene.char];
+                if (!activeEl.src.includes(targetSrc) || !activeEl.classList.contains('char-visible')) {
+                    nextEl.className = 'char-img';
+                    if (scene.char === 'char_clock') nextEl.classList.add('calendar-pos');
+                    else if (scene.char === 'char_phone') nextEl.classList.add('phone-pos');
+                    else if (scene.object) nextEl.classList.add('object-mode');
+                    nextEl.src = targetSrc;
+                    nextEl.onload = () => { nextEl.classList.add('char-visible'); activeEl.classList.remove('char-visible'); activeCharIndex = activeCharIndex === 1 ? 2 : 1; };
+                }
+            } else { dom.char1.classList.remove('char-visible'); dom.char2.classList.remove('char-visible'); }
+        }
+
+        function typeWriter(t, el, cb) { 
+            if (typeWriterTimer) clearInterval(typeWriterTimer); 
+            el.innerText = ""; let i = 0; 
+            typeWriterTimer = setInterval(() => { 
+                el.innerText += t.charAt(i); i++; 
+                if (i >= t.length) { clearInterval(typeWriterTimer); typeWriterTimer = null; if (cb) cb(); } 
+            }, 30); 
+        }
+
+        function showTalk(scene) { dom.overlay.style.display = 'none'; dom.speakerName.innerText = scene.speaker || "旁白"; typeWriter(scene.text, dom.text); speak(scene.text, scene.speaker || "旁白"); }
+
+        function showChoice(scene) {
+            dom.overlay.style.display = 'flex'; dom.titleText.innerText = scene.text; dom.content.innerHTML = "";
+            speak(scene.text, "旁白"); 
+            scene.choices.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = `<span>${opt.t}</span> <i class="fas fa-chevron-right"></i>`;
+                btn.onclick = () => processResult({ s: opt.s, money: opt.money, reaction: opt.reaction }, opt.key);
+                dom.content.appendChild(btn);
+            });
+        }
+
+        function showDateInput(scene) {
+            dom.overlay.style.display = 'flex'; dom.titleText.innerText = scene.text; speak(scene.text, "旁白"); 
+            dom.content.innerHTML = `<div class="input-group">
+                <select id="yy_sel" class="custom-select"><option value="">年份</option></select>
+                <select id="mm_sel" class="custom-select"><option value="">月份</option></select>
+                <select id="dd_sel" class="custom-select"><option value="">日期</option></select>
+            </div><button class="confirm-btn" onclick="checkDateHandler()">確認</button>`;
+            const yy = document.getElementById('yy_sel'), mm = document.getElementById('mm_sel'), dd = document.getElementById('dd_sel');
+            const now = new Date();
+            for(let yr=now.getFullYear()-1; yr<=now.getFullYear()+1; yr++) yy.innerHTML += `<option value="${yr}">${yr-1911} 年</option>`;
+            for(let i=1; i<=12; i++) mm.innerHTML += `<option value="${i-1}">${i} 月</option>`;
+            for(let i=1; i<=31; i++) dd.innerHTML += `<option value="${i}">${i} 日</option>`;
+            window.checkDateHandler = () => {
+                const sY = parseInt(document.getElementById('yy_sel').value);
+                const sM = parseInt(document.getElementById('mm_sel').value);
+                const sD = parseInt(document.getElementById('dd_sel').value);
+                if(isNaN(sY) || isNaN(sM) || isNaN(sD)) return;
+                handleResult((sY === now.getFullYear() && sM === now.getMonth() && sD === now.getDate()), scene);
+            };
+        }
+
+        function showNumberInput(scene) {
+            dom.overlay.style.display = 'flex'; dom.titleText.innerText = scene.text; speak(scene.text, "旁白"); 
+            dom.content.innerHTML = `<div id="numpad-display"></div><div id="numpad">
+                ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="num-btn" onclick="addNum(${n})">${n}</button>`).join('')}
+                <button class="num-btn" style="color:#fc8181" onclick="clearNum()">C</button>
+                <button class="num-btn" onclick="addNum(0)">0</button>
+                <button class="num-btn del-btn" onclick="backspace()"><i class="fas fa-backspace"></i></button>
+                <button class="num-btn ok-btn" style="grid-column: span 3; background:#48bb78; color:white; font-size:20px; margin-top:10px;" onclick="checkNum()">確認送出</button>
+            </div>`;
+            let val = ""; const display = document.getElementById('numpad-display');
+            window.addNum = (n) => { if (val === "" && n === 0) return; if(val.length<5) val+=n; display.innerText = val; };
+            window.clearNum = () => { val=""; display.innerText = ""; };
+            window.backspace = () => { val = val.slice(0, -1); display.innerText = val; };
+            window.checkNum = () => { if(val==="") return; handleResult(parseInt(val) === scene.answer, scene); };
+        }
+
+        function showTimePicker(scene) {
+            dom.overlay.style.display = 'flex'; dom.titleText.innerText = scene.text; speak(scene.text, "旁白"); 
+            dom.content.innerHTML = `<div class="time-picker-container"><div class="ampm-toggle">
+                <button class="ampm-btn active" id="btn-am" onclick="setAmPm('AM')">上午</button>
+                <button class="ampm-btn" id="btn-pm" onclick="setAmPm('PM')">下午</button>
+            </div><div class="hour-selector">${[1,2,3,4,5,6,7,8,9,10,11,12].map(h => `<div class="hour-btn" onclick="selectHour(${h}, this)">${h}</div>`).join('')}</div></div><button class="confirm-btn" onclick="checkTimePicker()">確認</button>`;
+            let selectedPeriod = 'AM', selectedHour = null;
+            window.setAmPm = (p) => { selectedPeriod = p; document.getElementById('btn-am').className = p==='AM' ? 'ampm-btn active' : 'ampm-btn'; document.getElementById('btn-pm').className = p==='PM' ? 'ampm-btn active' : 'ampm-btn'; };
+            window.selectHour = (h, el) => { selectedHour = h; document.querySelectorAll('.hour-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); };
+            window.checkTimePicker = () => { if(selectedHour === null) return; let finalH = selectedHour; if(selectedPeriod === 'PM' && selectedHour !== 12) finalH += 12; if(selectedPeriod === 'AM' && selectedHour === 12) finalH = 0; handleResult(finalH === 16, scene); };
+        }
+
+        function handleResult(isCorrect, scene) { processResult(isCorrect ? scene.correct : scene.wrong, false); }
+
+        function processResult(data, isKeyTask) {
+            riskScore += (data.s || 0); totalMoney += (data.money || 0); dom.hudMoney.innerText = totalMoney; dom.overlay.style.display = 'none'; 
+            if (data.reaction) {
+                blockAdvance = true; // 鎖定點擊，防止 advanceStory 同時觸發
+                dom.speakerName.innerText = data.reaction.speaker; dom.dialog.style.display = 'flex'; 
+                typeWriter(data.reaction.text, dom.text, () => waitForClick()); speak(data.reaction.text, data.reaction.speaker); 
+            } else {
+                index++;
+                if (SCRIPT[index] && SCRIPT[index].type === 'key_search' && !isKeyTask) index++;
+                render();
+            }
+        }
+
+        function advanceStory() {
+            if (dom.overlay.style.display === 'flex' || dom.key.style.display === 'block' || blockAdvance) return;
+            if (typeWriterTimer) { clearInterval(typeWriterTimer); typeWriterTimer = null; dom.text.innerText = SCRIPT[index].text || ""; return; }
+            index++; if (index < SCRIPT.length) render();
+        }
+
+        function waitForClick() { 
+            const h = () => { 
+                dom.dialog.removeEventListener('click', h); 
+                blockAdvance = false; // 解除鎖定
+                index++; render(); 
+            }; 
+            setTimeout(() => dom.dialog.addEventListener('click', h), 500); 
+        }
+
+        function resizeApp() { document.getElementById('mobile-container').style.height = `${window.innerHeight}px`; }
+        window.addEventListener('resize', resizeApp);
+
+        function showReport() {
+            document.getElementById('report-overlay').style.display = 'flex';
+            document.getElementById('report-money').innerText = `$${totalMoney}`;
+            const stamp = document.getElementById('final-stamp');
+            const advice = document.getElementById('report-advice');
+            let rankText = "", adviceContent = "";
+            if (riskScore <= 1) { rankText = "金牌店長"; adviceContent = "太厲害了！您的記憶力與判斷力都非常清晰，請繼續保持！"; } 
+            else if (riskScore <= 3) { rankText = "銀牌店長"; adviceContent = "表現不錯喔！多動腦、多運動可以讓頭腦更靈活。"; } 
+            else { rankText = "銅牌店長"; adviceContent = "最近是不是比較累呢？建議找時間找醫生檢查一下喔，保養一下大腦。"; }
+            stamp.innerText = rankText; advice.innerText = adviceContent;
+            speak("今日營業結束。您的評級是：" + rankText + "。" + adviceContent, "旁白");
+        }
+    </script>
+</body>
+>>>>>>> d48b9ee (update:優化更新)
 </html>
