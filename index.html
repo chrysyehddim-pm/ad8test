@@ -42,6 +42,9 @@
             max-height: 85%; width: auto; max-width: 95%; opacity: 0; 
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4));
             transition: opacity 0.3s ease-in-out; 
+            /* 新增：讓角色或物件可以直接被點擊 */
+            pointer-events: auto;
+            cursor: pointer;
         }
         .char-visible { opacity: 1 !important; }
         
@@ -110,6 +113,9 @@
             box-shadow: 0 4px 0 #cbd5e0; transition: transform 0.1s;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
             flex-shrink: 0;
+            touch-action: manipulation; /* 防雙擊放大 */
+            user-select: none;
+            -webkit-user-select: none;
         }
         .choice-btn:active { transform: translateY(4px); box-shadow: none; background: #e2e8f0 !important; }
         
@@ -126,21 +132,27 @@
         /* 輸入介面 */
         .input-group { display: flex; gap: 8px; margin-bottom: 25px; width: 100%; justify-content: center; }
         .custom-select { padding: 12px 4px; font-size: 18px; border-radius: 10px; border: 3px solid #f6ad55; background: #fff; color: #2d3748; font-weight: bold; text-align: center; flex: 1; min-width: 0; }
-        .confirm-btn { background: #48bb78 !important; color: white !important; padding: 18px 40px; border-radius: 50px; font-size: 24px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 6px 0 #2f855a; width: 100%; margin-top: 15px; }
+        .confirm-btn { background: #48bb78 !important; color: white !important; padding: 18px 40px; border-radius: 50px; font-size: 24px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 6px 0 #2f855a; width: 100%; margin-top: 15px; touch-action: manipulation; }
 
-        /* Numpad & TimePicker 樣式維持原樣 */
+        /* Numpad & TimePicker */
         #numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-bottom: 15px; }
-        .num-btn { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); padding: 18px; font-size: 26px; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        .num-btn { 
+            background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); 
+            padding: 18px; font-size: 26px; font-weight: bold; border-radius: 12px; cursor: pointer;
+            touch-action: manipulation; /* 防雙擊放大 */
+            user-select: none;
+            -webkit-user-select: none;
+        }
         .num-btn:active { background: rgba(255,255,255,0.4); }
         .del-btn { color: #feb2b2; }
-        #numpad-display { width: 100%; background: #fff; color: #2d3748; font-size: 40px; font-weight: bold; text-align: center; padding: 12px; border-radius: 12px; margin-bottom: 20px; border: 4px solid #f6ad55; letter-spacing: 3px; height: 85px; display: flex; align-items: center; justify-content: center; }
+        #numpad-display { width: 100%; background: #fff; color: #2d3748; font-size: 40px; font-weight: bold; text-align: center; padding: 12px; border-radius: 12px; margin-bottom: 20px; border: 4px solid #f6ad55; letter-spacing: 3px; height: 85px; display: flex; align-items: center; justify-content: center; user-select: none; }
 
         .time-picker-container { display: flex; flex-direction: column; align-items: center; width: 100%; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .ampm-toggle { display: flex; background: #e2e8f0; border-radius: 50px; padding: 5px; margin-bottom: 20px; width: 100%; }
-        .ampm-btn { flex: 1; padding: 12px; border-radius: 40px; border: none; font-size: 20px; font-weight: bold; cursor: pointer; background: transparent; color: #718096; }
+        .ampm-btn { flex: 1; padding: 12px; border-radius: 40px; border: none; font-size: 20px; font-weight: bold; cursor: pointer; background: transparent; color: #718096; touch-action: manipulation; user-select: none; }
         .ampm-btn.active { background: #3b82f6; color: white; }
         .hour-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
-        .hour-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px 0; font-size: 22px; font-weight: bold; color: #2d3748; cursor: pointer; }
+        .hour-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px 0; font-size: 22px; font-weight: bold; color: #2d3748; cursor: pointer; touch-action: manipulation; user-select: none; }
         .hour-btn.selected { border-color: #f6ad55; background: #fffaf0; color: #ed8936; box-shadow: 0 0 0 2px #f6ad55; }
 
         /* Report */
@@ -169,11 +181,11 @@
         <div id="bg-layer"></div>
         
         <div id="char-container">
-            <img id="char-1" class="char-img" alt="C1">
-            <img id="char-2" class="char-img" alt="C2">
+            <img id="char-1" class="char-img" alt="C1" onclick="advanceStory()">
+            <img id="char-2" class="char-img" alt="C2" onclick="advanceStory()">
         </div>
         
-        <img id="key-item" style="position:absolute; top:60%; left:70%; width:100px; display:none; z-index:15; cursor:pointer;" src="assets/images/key.png" alt="Key">
+        <img id="key-item" style="position:absolute; top:52%; left:62%; width:160px; padding:30px; display:none; z-index:15; cursor:pointer; touch-action: manipulation;" src="assets/images/key.png" alt="Key">
         
         <div id="top-hud">
             <div class="status-pill"><i class="fas fa-clock"></i> <span id="game-time">08:00</span></div>
@@ -229,7 +241,6 @@
     <script>
         // ================= FIREBASE 設定與邏輯 =================
         
-        // TODO: 請在此處填入你的 Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyB6wcFs5gSiNDCSweKcEzgRpbIAAb5I3Vo",
             authDomain: "smart-squat-health.firebaseapp.com",
@@ -239,7 +250,7 @@
             appId: "1:475970550783:web:2d7dcacb2e55b562eb05ca",
         };
 
-        // 初始化 Firebase (確保不重複初始化)
+        // 初始化 Firebase
         let db;
         try {
             if (!firebase.apps.length) {
@@ -251,15 +262,13 @@
             console.error("Firebase init error:", e);
         }
 
-        // 使用者資料暫存
         let userData = {
             name: "",
             age: 0,
             startTime: null,
-            logs: [] // 紀錄每一題的詳細結果
+            logs: []
         };
 
-        // 儲存函式
         function saveGameRecord(finalRisk, finalMoney) {
             if(!db) return;
             const statusEl = document.getElementById('saving-status');
@@ -270,7 +279,7 @@
                 date: new Date(),
                 riskScore: finalRisk,
                 totalMoney: finalMoney,
-                details: userData.logs, // 每一題的 Pass/Fail 紀錄
+                details: userData.logs,
                 platform: navigator.userAgent
             })
             .then((docRef) => {
@@ -354,7 +363,7 @@
             { type: "talk", speaker: "旁白", text: "(電視畫面變成了雪花雜訊)", char: "char_tv", object: true },
             { type: "choice", text: "通常您會怎麼做？", qId: "Q5_Tool_Usage", choices: [
                 { t: "檢查訊號線接頭", s: 0, money: 150, reaction: {text: "修好了！果然是訊號線鬆了。", speaker: "店長"} },
-                { t: "用力拍打電視", s: 1, money: 0, reaction: {text: "哎唷！手好痛... 這種老電視拍了也沒用。", speaker: "店長"} }
+                { t: "使用遙控器關電視", s: 1, money: 0, reaction: {text: "唉唷，怎麼把電視關了，應該要檢查訊號線...", speaker: "店長"} } // 修改第5題選項與台詞
             ], char: "char_tv", object: true }, 
 
             { type: "talk", speaker: "旁白", text: "(正午剛過，這時陳太太提著籃子進店了...)" },
@@ -422,18 +431,12 @@
             else { icon.className = 'fas fa-volume-mute'; dom.bgm.pause(); speechSynth.cancel(); }
         }
 
-        dom.bgm.addEventListener('timeupdate', () => {
-            if (!isMusicOn) return;
-            const t = dom.bgm.currentTime; const d = dom.bgm.duration;
-            if (t < 5) dom.bgm.volume = (t / 5) * 0.8; 
-            else if (t > d - 5) dom.bgm.volume = Math.max(0, (d - t) / 5) * 0.8;
-            else dom.bgm.volume = 0.8;
-        });
-
         function speak(text, role) {
             if (!isMusicOn) return; 
             speechSynth.cancel(); 
-            const u = new SpeechSynthesisUtterance(text);
+            // 修改：過濾掉括號與不必要的符號，防止被朗讀出來
+            const cleanText = text.replace(/[()（）『』「」]/g, '');
+            const u = new SpeechSynthesisUtterance(cleanText);
             u.lang = 'zh-TW';
             const profile = VOICE_PROFILES[role] || { pitch: 1.0, rate: 1.0 };
             u.pitch = profile.pitch; u.rate = profile.rate;
@@ -468,7 +471,6 @@
         };
 
         function startGame() { 
-            // 驗證輸入
             const name = dom.userName.value.trim();
             const age = dom.userAge.value.trim();
             
@@ -483,7 +485,12 @@
 
             document.getElementById('intro-overlay').style.display = 'none'; 
             render(); 
-            if(isMusicOn){ dom.bgm.volume = 0; dom.bgm.play().catch(e=>{}); } 
+            
+            // 修改：拔除原本淡入機制，確保音樂一開始就滿音量播放，並增加錯誤排除
+            if(isMusicOn){ 
+                dom.bgm.volume = 1.0; 
+                dom.bgm.play().catch(e => console.error("音樂播放被阻擋", e)); 
+            } 
         }
 
         function render() {
@@ -558,7 +565,6 @@
                 const btn = document.createElement('button');
                 btn.className = 'choice-btn';
                 
-                // 優化：加入朗讀按鈕
                 btn.innerHTML = `
                     <div style="display:flex; align-items:center;">
                         <div class="opt-speak-btn" onclick="event.stopPropagation(); speak('${opt.t}', '旁白')">
@@ -631,11 +637,10 @@
         function processResult(data, isKeyTask, qId, choiceText) {
             riskScore += (data.s || 0); totalMoney += (data.money || 0); dom.hudMoney.innerText = totalMoney; dom.overlay.style.display = 'none'; 
             
-            // 記錄數據
             if (qId) {
                 userData.logs.push({
                     questionId: qId,
-                    result: data.s === 0 ? "PASS" : "FAIL", // s=0代表無風險(通過)，s=1代表有風險(失敗)
+                    result: data.s === 0 ? "PASS" : "FAIL", 
                     choice: choiceText,
                     timestamp: new Date()
                 });
@@ -682,7 +687,6 @@
             stamp.innerText = rankText; advice.innerText = adviceContent;
             speak("今日營業結束。您的評級是：" + rankText + "。" + adviceContent, "旁白");
             
-            // 觸發雲端儲存
             saveGameRecord(riskScore, totalMoney);
         }
     </script>
